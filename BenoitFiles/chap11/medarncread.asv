@@ -1,0 +1,39 @@
+function[a,lon,lat,depth]=medarncread(file)
+
+disp(['Reading ' file]);
+
+% Try to recover which interface is used
+fid = fopen('../nc/nctype.dat', 'r');
+itype=fscanf(fid,'%u',1)
+fclose(fid);
+
+if itype==2
+% octCDF type
+
+nc = netcdf(file, 'nowrite');   % Open NetCDF file.
+disp(nc.description(:))         % Global attribute.
+disp(nc.author(:))              % Global attribute.
+disp(nc.date(:))                % Global attribute.
+variables = ncvar(nc);            % Get variable data.
+lat=variables{1}(:);
+lon=variables{2}(:);
+depth=variables{3}(:);
+a=variables{4}(:);
+%nc = ncclose(nc); 
+
+end
+
+if itype==1
+
+
+% New mexcdf version
+ncfile=file;
+% Look at the content
+nc_dump(ncfile)
+% Then read the relevant parameters
+lat=nc_varget(ncfile,'lat');
+lon=nc_varget(ncfile,'lon');
+depth=nc_varget(ncfile,'depth');
+a=nc_varget(ncfile,'depth');
+
+end

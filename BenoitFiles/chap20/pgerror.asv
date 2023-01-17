@@ -1,0 +1,52 @@
+clear all;
+close all;
+
+% Number of points in x and z direction
+M=50;
+N=100;
+
+% Depth in the middle of the domain
+HM=200;
+% With of the domain
+L=500000;
+% Resulting grid spacing
+dx=L/N;
+
+% Depth of pycnocline
+D=10;
+% Width of pycnocline
+W=20;
+
+for i=1:N
+    for k=1:M
+        x(i)=(i-N/2)*dx;
+        xpl(i,k)=x(i);
+    end
+end
+for i=1:N
+    H(i)=HM+150*tanh(x(i)/L*20);
+    for k=1:M
+        s=(k-0.5)/M;
+        z(i,k)=-H(i)+s*H(i);
+        rho(i,k)=5*tanh((z(i,k)+D)/W);
+    end
+end
+
+[pg,xpg,zpg]=bcpgr(rho,x,z);
+xplb=xpl;
+for k=1:M
+    for i=1:N
+        xplb(i,k)=xpg(i);
+    end
+end
+
+pg=pg/0.0001/1024;
+pgmax=max(max(abs(pg)));
+pcolor(xplb',zpg',pg');
+shading interp;
+br=bluered(64);
+colormap(br);
+caxis([-pgmax pgmax]);
+colorbar;
+hold on;
+plot(x,-H);
